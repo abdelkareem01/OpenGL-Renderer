@@ -6,32 +6,10 @@
 #include <string>
 #include <sstream>
 
-#define __FILENAME__ \
-    (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : \
-     (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__))  //macro used to filter the path of a file to just its name(by iterating 1+ the path)
+#include "Renderer.h"
 
-#define ASSERT(x) if(!(x)) __debugbreak();
-#define GLCall(x) GLClearError();\
-    x;\
-    ASSERT(GLLogCall(#x, __FILENAME__, __LINE__))  //#x is the function and its params
-
-//for GLCall macro the "\" makes it so that it ignores the newline character
-//it calls GLClearError, then the function x, then calls ASSERT the GLLogCall() for debugging
-
-static void GLClearError()
-{
-    while(glGetError() != GL_NO_ERROR);
-}
-
-static bool GLLogCall(const char* function, const char* file, int line)
-{
-    while (GLenum error = glGetError())
-    {
-        std::cout << "[OpenGl Error] (" << error << "): " << function << " contained in " << file << " " << "at " << line << '\n';
-        return false;
-    }
-    return true;
-}
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 struct ShaderProgramSource
 {
@@ -137,67 +115,76 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << '\n';
 
-
-    float positions[] = {   //Define unique vertices of the square of whatever shape
-    -0.5f, -0.5f, // 0
-    -0.5f,  0.5f, // 1
-     0.5f, -0.5f, // 2 
-     0.5f,  0.5f, // 3
-    };
-
-    unsigned int indices[]{ //set the indexes of those vertices in order, reusing already defined ones to make the shape
-        0,1,2,
-        2,1,3,
-    };
-
-    unsigned int buffer;  //create and bind the VBO(vertex buffer object)
-    glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW);  //2 here refers to number of instances(math shit)
-
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0); //(startpos, number of values in each vertex, type, normalized?, stride(size of type * how many in each), offset)
-
-    unsigned int ibo;  //create and bind index buffer (IBO)
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW); //6 indicies
-
-    ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
-    unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
-    glUseProgram(shader);
-
-    GLCall(int location = glGetUniformLocation(shader, "u_Color"));
-    ASSERT(location != -1);
-    GLCall(glUniform4f(location, 0.2f, 0.3f, 1.0f, 1.0f));
-    
-    float r = 0.0f;
-    float increment = 0.05f;
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
     {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        float positions[] = {   //Define unique vertices of the square of whatever shape
+        -0.5f, -0.5f, // 0
+        -0.5f,  0.5f, // 1
+         0.5f, -0.5f, // 2 
+         0.5f,  0.5f, // 3
+        };
 
-        GLCall(glUniform4f(location, r, 0.3f, 1.0f, 1.0f));
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr)); //call the binded index array draw call(because the IBO is already binded we put nullptr instead of the IBO)
-        
-        if(r > 1.0f)
-            increment = -0.05f;
-        else if(r < 0.0f)
-            increment = 0.05f;
+        unsigned int indices[]{ //set the indexes of those vertices in order, reusing already defined ones to make the shape
+            0,1,2,
+            2,1,3,
+        };
 
-        r += increment;
+        unsigned int vao;
+        GLCall(glGenVertexArrays(1, &vao));
+        GLCall(glBindVertexArray(vao));
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-        
-        /* Poll for and process events */
-        glfwPollEvents();
+        VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0); //(startpos, number of values in each vertex, type, normalized?, stride(size of type * how many in each), offset)
+
+        IndexBuffer ib(indices, 6);
+
+        ShaderProgramSource source = ParseShader("res/shaders/Basic.shader");
+        unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
+        glUseProgram(shader);
+
+        GLCall(int location = glGetUniformLocation(shader, "u_Color"));
+        ASSERT(location != -1);
+
+        GLCall(glBindVertexArray(0));
+        GLCall(glUseProgram(0));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+        float r = 0.0f;
+        float increment = 0.05f;
+        /* Loop until the user closes the window */
+        while (!glfwWindowShouldClose(window))
+        {
+            /* Render here */
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            GLCall(glUseProgram(shader));
+
+            GLCall(glUniform4f(location, r, 0.3f, 1.0f, 1.0f));
+
+            GLCall(glBindVertexArray(vao));
+
+            ib.Bind();
+            
+            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr)); //call the binded index array draw call(because the IBO is already binded we put nullptr instead of the IBO)
+            
+            if (r > 1.0f)
+                increment = -0.05f;
+            else if (r < 0.0f)
+                increment = 0.05f;
+
+            r += increment;
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(window);
+
+            /* Poll for and process events */
+            glfwPollEvents();
+        }
+
+        glDeleteProgram(shader);
     }
-
-    glDeleteProgram(shader);
-
     glfwTerminate();
     return 0;
 }
