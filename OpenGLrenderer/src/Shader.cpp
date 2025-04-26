@@ -6,7 +6,6 @@
 #include <string>
 #include <sstream>
 
-
 Shader::Shader(const std::string& filepath):m_FilePath(filepath), m_RendererID(0)
 {
 
@@ -35,9 +34,19 @@ void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2,
 	GLCall(glUniform4f(GetUniformLocation(name), v0, v1, v2, v3));
 }
 
+void Shader::SetUniformMat4f(const std::string& name, glm::mat4& matrix)
+{
+	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0])); //(location, count, transpose to column order?(glm already creates the mat in column order), pointer to matrix(in this case we use the memory address of the first element))
+}
+
 void Shader::SetUniform1f(const std::string& name, float value)
 {
 	GLCall(glUniform1f(GetUniformLocation(name), value));
+}
+
+void Shader::SetUniform1i(const std::string& name, int value)
+{
+	GLCall(glUniform1i(GetUniformLocation(name), value));
 }
 
 int Shader::GetUniformLocation(const std::string& name)
@@ -46,7 +55,7 @@ int Shader::GetUniformLocation(const std::string& name)
 		return m_UniformLocationCache[name];
 
 	GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
-	if(location == -1)
+	if (location == -1)
 		std::cout << "Warning: uniform '" << name << "' doesn't exist!" << '\n';
 
 	m_UniformLocationCache[name] = location;  //we cache the location of the uniform even if it

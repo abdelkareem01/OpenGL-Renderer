@@ -12,18 +12,45 @@
 #include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
+
 #include "Shader.h"
+#include "Texture.h"
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+struct WindowSize
+{
+	static float Width;
+    static float Height;
+
+    inline static void SetDimensions(float W, float H)
+    {
+        Width = W;
+        Height = H;
+    }
+};
+
+float WindowSize::Width;
+float WindowSize::Height;
 
 int main(void)
 {
+    
     GLFWwindow* window;
+
+    WindowSize::SetDimensions(960, 540);
 
     /* Initialize the library */
     if (!glfwInit())
         return -1;
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow((int)(WindowSize::Width), (int)(WindowSize::Height), "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -40,34 +67,46 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << '\n';
 
     {
+        //values 0.5 and -0.5 are vertex related, and values from 0.0 to 1.0f are texture related
         float positions[] = {   //Define unique vertices of the square of whatever shape
-        -0.5f, -0.5f, // 0
-        -0.5f,  0.5f, // 1
-         0.5f, -0.5f, // 2 
-         0.5f,  0.5f, // 3
+        100.0f, 100.0f, 0.0f, 0.0f, // 0
+        100.0f, 200.0f, 0.0f, 1.0f, // 1
+        200.0f, 100.0f, 1.0f, 0.0f, // 2 
+        200.0f, 200.0f, 1.0f, 1.0f, // 3
         };
 
         unsigned int indices[]{ //set the indexes of those vertices in order, reusing already defined ones to make the shape
             0,1,2,
             2,1,3,
         };
+        
+		GLCall(glEnable(GL_BLEND));
+		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         VertexArray va;
-        VertexBuffer vb(positions, 4 * 2 * sizeof(float));
+        VertexBuffer vb(positions, 4 * 4 * sizeof(float));  //4 floats per vertex including texture edges
         VertexBufferLayout layout;
-        layout.Push<float>(2);
+        layout.Push<float>(2);   //number of values per position
+        layout.Push<float>(2);   //edges for the textures
         va.AddBuffer(vb, layout);
         
         IndexBuffer ib(indices, 6);
 
+		glm::mat4 projMat = glm::ortho(0.0f, WindowSize::Width, 0.0f, WindowSize::Height, -1.0f, 1.0f); // -X, X, -Y, Y, -Z, Z ==> aspect ratio = X:Y
+
         Shader shader("res/shaders/Basic.shader");
         shader.Bind();
-        shader.SetUniform4f("u_Color", 0.0f, 0.0f, 0.0f, 0.0f);
+        shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
+        shader.SetUniformMat4f("u_MVP", projMat);
+
+        Texture texture("res/textures/testTexture.png");
+        texture.Bind();   //texture slot 0
+        shader.SetUniform1i("u_Texture", 0);  //0 here refers to the texture slot, which in this case is 0
 
         va.UnBind();
-        shader.Unbind();
         vb.Unbind();
         ib.Unbind();
+        shader.Unbind();
 
         Renderer renderer;
 
