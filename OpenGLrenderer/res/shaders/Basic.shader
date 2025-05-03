@@ -27,5 +27,5 @@ uniform sampler2D u_Texture;   //the sampler rasterized the image(pixelizes)
 void main()
 {
 	vec4 texColor = texture(u_Texture, v_TexCoord);
-	color = u_Color * texColor;
+	color = u_Color;
 };

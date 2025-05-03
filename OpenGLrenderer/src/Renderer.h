@@ -23,6 +23,18 @@ void GLClearError();
 
 bool GLLogCall(const char* function, const char* file, int line);
 
+struct WindowSize
+{
+	static float Width;
+	static float Height;
+
+	inline static void SetDimensions(float W, float H)
+	{
+		Width = W;
+		Height = H;
+	}
+};
+
 class Renderer
 {
 public:

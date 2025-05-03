@@ -2,6 +2,8 @@ C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\Application.cpp;C:\cppdev\OpenGLrend
 C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\IndexBuffer.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\IndexBuffer.obj
 C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\Renderer.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\Renderer.obj
 C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\Shader.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\Shader.obj
+C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\tests\TestClearColor.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\TestClearColor.obj
+C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\tests\TestSquare.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\TestSquare.obj
 C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\Texture.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\Texture.obj
 C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\vendor\glm\detail\glm.cpp;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\glm.obj
 C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\vendor\glm\glm.cppm;C:\cppdev\OpenGLrenderer\OpenGLrenderer\x64\Debug\glm.cppm.obj

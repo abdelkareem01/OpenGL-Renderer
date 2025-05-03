@@ -1,49 +1,22 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <sstream>
-
 #include "Renderer.h"
 
-#include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-
-#include "Shader.h"
-#include "Texture.h"
-
-#include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
+//#include "Texture.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-struct WindowSize
-{
-	static float Width;
-    static float Height;
-
-    inline static void SetDimensions(float W, float H)
-    {
-        Width = W;
-        Height = H;
-    }
-};
-
-float WindowSize::Width;
-float WindowSize::Height;
+#include "tests/TestClearColor.h"
+#include "tests/TestSquare.h"
 
 int main(void)
 {
-    
     GLFWwindow* window;
 
-    WindowSize::SetDimensions(960, 540);
+    WindowSize::SetDimensions(1920, 1080);
 
     /* Initialize the library */
     if (!glfwInit())
@@ -71,54 +44,16 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << '\n';
 
     {
-        //values 0.5 and -0.5 are vertex related, and values from 0.0 to 1.0f are texture related
-        float positions[] = {   //Define unique vertices of the square of whatever shape
-        -50.0f, -50.0f, 0.0f, 0.0f, // 0
-        -50.0f,  50.0f, 0.0f, 1.0f, // 1
-         50.0f, -50.0f, 1.0f, 0.0f, // 2
-         50.0f,  50.0f, 1.0f, 1.0f, // 3
-        };
-
-        unsigned int indices[]{ //set the indexes of those vertices in order, reusing already defined ones to make the shape
-            0,1,2,
-            2,1,3,
-        };
-        
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
         VertexArray va;
-        VertexBuffer vb(positions, 4 * 4 * sizeof(float));  //4 floats per vertex including texture edges
-        VertexBufferLayout layout;
-        layout.Push<float>(2);   //number of values per position
-        layout.Push<float>(2);   //edges for the textures
-        va.AddBuffer(vb, layout);
-        
-        IndexBuffer ib(indices, 6);
-        
-		glm::mat4 projMat = glm::ortho(0.0f, WindowSize::Width, 0.0f, WindowSize::Height, -1.0f, 1.0f); // -X, X, -Y, Y, -Z, Z ==> aspect ratio = X:Y
-        glm::mat4 viewMat = glm::translate(glm::mat4(1.0f), glm::vec3(0,0,0));
+		Shader shader("res/shaders/Basic.shader");
+		shader.Bind();
 
-        //projection matrix ==> scale of view
-        //model matrix      ==> transform of the objects
-        //view matrix       ==> transform of the camera pointing to objects
-        
-        //multiplication of these matrices results in our Model View Projection Matrix(MVP):
-       
-
-        Shader shader("res/shaders/Basic.shader");
-        shader.Bind();
-        shader.SetUniform4f("u_Color", 1.0f, 1.0f, 1.0f, 1.0f);
-       
-
-        Texture texture("res/textures/testTexture.png");
-        texture.Bind();   //texture slot 0
-        shader.SetUniform1i("u_Texture", 0);  //0 here refers to the texture slot, which in this case is 0
-
-        va.UnBind();
-        vb.Unbind();
-        ib.Unbind();
-        shader.Unbind();
+		//Texture texture("res/textures/testTexture.png");
+		//texture.Bind();   //texture slot 0
+		//shader.SetUniform1i("u_Texture", 0);  //0 here refers to the texture slot, which in this case is 0
 
         Renderer renderer;
 
@@ -128,59 +63,38 @@ int main(void)
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
 
-        ImGui::StyleColorsClassic();
+        ImGui::StyleColorsDark();
 
-		bool show_demo_window = true;
-		bool show_another_window = false;
-		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+        test::TestClearColor testColor;
+        test::TestSquare testSquare(va, shader);
 
-        glm::vec3 translationA(100, 100, 0);
-        glm::vec3 translationB(300, 100, 0);
-
-        float r = 0.0f;
-        float increment = 0.05f;
-        /* Loop until the user closes the window */
+		glm::vec3 SquareOne(100, 100, 0);
+		glm::vec3 SquareTwo(300, 100, 0);
+         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
             renderer.Clear();
 
+            shader.Bind();
+
+			testColor.OnUpdate(0.0f);
+            testSquare.OnUpdate(0.0f);
+			testColor.OnRender();
+            testSquare.OnRender();
+
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
-
-			shader.Bind();
-			shader.SetUniform4f("u_Color", r, 0.2f, 1.0f, 1.0f);
             
-            {
-				glm::mat4 modelMat = glm::translate(glm::mat4(1.0f), translationA);
-				glm::mat4 mvp = projMat * viewMat * modelMat;
-				shader.SetUniformMat4f("u_MVP", mvp);
-                renderer.Draw(va, ib, shader);
-            }
+			testColor.OnImGuiRender();
+			testSquare.OnImGuiRender("SquareOne", SquareOne);
+            renderer.Draw(va, testSquare.GetIb(), shader);
+            testSquare.OnImGuiRender("SquareTwo", SquareTwo);
+            renderer.Draw(va, testSquare.GetIb(), shader);
 
-            {
-				glm::mat4 modelMat = glm::translate(glm::mat4(1.0f), translationB);
-				glm::mat4 mvp = projMat * viewMat * modelMat;
-				shader.SetUniformMat4f("u_MVP", mvp);
-				renderer.Draw(va, ib, shader);
-            }
-            
-            if (r > 1.0f)
-                increment = -0.05f;
-            else if (r < 0.0f)
-                increment = 0.05f;
-
-            r += increment;
-
-            
-            {
-				ImGui::SliderFloat3("Translation A", &translationA.x, 0.0f, WindowSize::Width);            // Edit the transform of the model using float3 array
-                ImGui::SliderFloat3("Translation B", &translationB.x, 0.0f, WindowSize::Width);
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-				ImGui::Render();
-				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            }
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
