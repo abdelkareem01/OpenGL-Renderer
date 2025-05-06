@@ -65,33 +65,39 @@ int main(void)
 
         ImGui::StyleColorsDark();
 
-        test::TestClearColor testColor;
-        test::TestSquare testSquare(va, shader);
+        test::Test* currentTest = nullptr;
+        test::TestMenu* testMenu = new test::TestMenu(currentTest);
+        currentTest = testMenu;
+        
+        testMenu->RegisterTest<test::TestClearColor>("Clear Color");
+        testMenu->RegisterTest<test::TestSquare>("Test Square", &va, &shader, &renderer, 2);
 
-		glm::vec3 SquareOne(100, 100, 0);
-		glm::vec3 SquareTwo(300, 100, 0);
          /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
             /* Render here */
+            GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
             renderer.Clear();
 
             shader.Bind();
-
-			testColor.OnUpdate(0.0f);
-            testSquare.OnUpdate(0.0f);
-			testColor.OnRender();
-            testSquare.OnRender();
 
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
             
-			testColor.OnImGuiRender();
-			testSquare.OnImGuiRender("SquareOne", SquareOne);
-            renderer.Draw(va, testSquare.GetIb(), shader);
-            testSquare.OnImGuiRender("SquareTwo", SquareTwo);
-            renderer.Draw(va, testSquare.GetIb(), shader);
+            if (currentTest)
+            {
+                currentTest->OnUpdate(0.0f);
+                currentTest->OnRender();
+                ImGui::Begin("Tests Menu");
+                if (currentTest != testMenu && ImGui::Button("<-"))
+                {
+                    delete currentTest;
+                    currentTest = testMenu;
+                }
+                currentTest->OnImGuiRender();
+                ImGui::End();
+            }
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -102,6 +108,9 @@ int main(void)
             /* Poll for and process events */
             glfwPollEvents();
         }
+        delete currentTest;
+        if(currentTest != testMenu)
+            delete testMenu;
     }
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
