@@ -49,12 +49,12 @@ void Shader::SetUniform1i(const std::string& name, int value)
 	GLCall(glUniform1i(GetUniformLocation(name), value));
 }
 
-int Shader::GetUniformLocation(const std::string& name)
+GLint Shader::GetUniformLocation(const std::string& name) const
 {
 	if(m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 		return m_UniformLocationCache[name];
 
-	GLCall(int location = glGetUniformLocation(m_RendererID, name.c_str()));
+	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 	if (location == -1)
 		std::cout << "Warning: uniform '" << name << "' doesn't exist!" << '\n';
 

@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 
+#include <GL/glew.h>
 #include "glm/glm.hpp"
 
 struct ShaderProgramSource
@@ -16,7 +17,7 @@ class Shader
 private:
 	std::string m_FilePath;
 	unsigned int m_RendererID;
-	std::unordered_map<std::string, int> m_UniformLocationCache;  //caching locations of uniform values
+	mutable std::unordered_map<std::string, GLint> m_UniformLocationCache;  //caching locations of uniform values
 
 public:
 	Shader(const std::string& filepath);
@@ -30,7 +31,7 @@ public:
 	void SetUniform1i(const std::string& name, int value);
 	void SetUniformMat4f(const std::string& name, glm::mat4& matrix);
 private:
-	int GetUniformLocation(const std::string& name);
+	GLint GetUniformLocation(const std::string& name) const;
 	ShaderProgramSource ParseShader(const std::string& filepath);
 	unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
 	unsigned int CompileShader(unsigned int type, const std::string& source);
