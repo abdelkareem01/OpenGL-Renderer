@@ -8,11 +8,6 @@ namespace test
 
 	}
 
-	TestMenu::~TestMenu()
-	{
-
-	}
-
 	void TestMenu::OnImGuiRender()
 	{
 		for (auto& test : m_Tests)

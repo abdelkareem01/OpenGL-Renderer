@@ -23,9 +23,10 @@ in vec2 v_TexCoord; //tex coords gets inputed into frag shader
 
 uniform vec4 u_Color;
 uniform sampler2D u_Texture;   //the sampler rasterized the image(pixelizes)
+uniform bool u_UseTexture;
 
 void main()
 {
 	vec4 texColor = texture(u_Texture, v_TexCoord);
-	color = u_Color;
+	color = u_Color * (u_UseTexture? texColor : vec4(1.0));
 };

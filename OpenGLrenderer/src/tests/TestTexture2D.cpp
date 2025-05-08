@@ -1,8 +1,8 @@
-#include "TestSquare.h"
+#include "TestTexture2D.h"
 
 namespace test
 {
-	TestSquare::TestSquare(int nTranslations)
+	TestTexture2D::TestTexture2D(int nTranslations)
 		:m_ProjMat(glm::ortho(0.0f, WindowSize::Width, 0.0f, WindowSize::Height, -1.0f, 1.0f)),
 		m_ViewMat(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)))
 	{
@@ -10,13 +10,18 @@ namespace test
 		m_Vb = std::make_unique<VertexBuffer>(m_Positions, 4 * 4 * sizeof(float));
 		VertexBufferLayout layout;
 		layout.Push<float>(2);   //number of values per position
+		layout.Push<float>(2);	 //number of texture edges per position
 		m_Va->AddBuffer(*m_Vb, layout);
 		m_Ib = std::make_unique<IndexBuffer>(m_Indices, 6);
 
 		m_Shader = std::make_unique<Shader>("res/shaders/Basic.shader");
 		m_Shader->Bind();
-		m_Shader->SetUniform4f("u_Color", 0.3f, 0.4f, 0.8f, 1.0f);
-		m_Shader->SetUniform1i("u_UseTexture", 0);
+		m_Shader->SetUniform4f("u_Color", 0.0f, 0.0f, 0.0f, 1.0f);
+
+		m_Texture = std::make_unique<Texture>("res/textures/testTexture.png");
+		m_Shader->SetUniform1i("u_Texture", 0);
+		m_Shader->SetUniform1i("u_UseTexture", 1);
+
 		for (int i = 0; i < nTranslations; i++)
 		{
 			m_Translations.push_back(std::make_pair("Translation: " + std::to_string(i + 1), glm::vec3(100 * (i + 1), 100 * (i + 1), 0)));
@@ -25,22 +30,22 @@ namespace test
 
 	}
 
-	TestSquare::~TestSquare()
+	TestTexture2D::~TestTexture2D()
 	{
-
 	}
 
-	void TestSquare::OnUpdate(float deltaTime)
+	void TestTexture2D::OnUpdate(float deltaTime)
 	{
-
 	}
 
-	void TestSquare::OnRender()
+	void TestTexture2D::OnRender()
 	{
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		m_Renderer = std::make_unique<Renderer>();
+		
+		m_Texture->Bind();
 
 		for (auto& translation : m_Translations)
 		{
@@ -52,20 +57,21 @@ namespace test
 		}
 	}
 
-	void TestSquare::OnImGuiRender()
+	void TestTexture2D::OnImGuiRender()
 	{
 		for (auto& translation : m_Translations)
 		{
-			ImGui::SliderFloat3(translation.first.c_str(), &translation.second.x, 0.0f, WindowSize::Width);
+		ImGui::SliderFloat3(translation.first.c_str(), &translation.second.x, 0.0f, WindowSize::Width);
 		}
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
 
-	void TestSquare::OnDelete()
+	void TestTexture2D::OnDelete()
 	{
 		m_Va->UnBind();
 		m_Vb->Unbind();
 		m_Ib->Unbind();
+		m_Texture->Unbind();
 		m_Shader->Unbind();
 	}
 

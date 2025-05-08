@@ -11,6 +11,7 @@
 
 #include "tests/TestClearColor.h"
 #include "tests/TestSquare.h"
+#include "tests/TestTexture2D.h"
 
 int main(void)
 {
@@ -47,14 +48,6 @@ int main(void)
 		GLCall(glEnable(GL_BLEND));
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-        VertexArray va;
-		Shader shader("res/shaders/Basic.shader");
-		shader.Bind();
-
-		//Texture texture("res/textures/testTexture.png");
-		//texture.Bind();   //texture slot 0
-		//shader.SetUniform1i("u_Texture", 0);  //0 here refers to the texture slot, which in this case is 0
-
         Renderer renderer;
 
 		ImGui::CreateContext();
@@ -70,7 +63,8 @@ int main(void)
         currentTest = testMenu;
         
         testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-        testMenu->RegisterTest<test::TestSquare>("Test Square", &va, &shader, &renderer, 2);
+        testMenu->RegisterTest<test::TestSquare>("Test Square", 4);
+        testMenu->RegisterTest<test::TestTexture2D>("2D Texture", 4);
 
          /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
@@ -78,8 +72,6 @@ int main(void)
             /* Render here */
             GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
             renderer.Clear();
-
-            shader.Bind();
 
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
@@ -92,13 +84,13 @@ int main(void)
                 ImGui::Begin("Tests Menu");
                 if (currentTest != testMenu && ImGui::Button("<-"))
                 {
+                    currentTest->OnDelete();
                     delete currentTest;
                     currentTest = testMenu;
                 }
                 currentTest->OnImGuiRender();
                 ImGui::End();
             }
-
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -108,6 +100,7 @@ int main(void)
             /* Poll for and process events */
             glfwPollEvents();
         }
+        currentTest->OnDelete();
         delete currentTest;
         if(currentTest != testMenu)
             delete testMenu;

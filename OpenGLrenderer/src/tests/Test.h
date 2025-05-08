@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <memory>
 
 #include "Renderer.h"
 #include "VertexBuffer.h"
@@ -37,20 +38,18 @@ namespace test
 	{
 	public:
 		TestMenu(Test*& currentTestPointer);
-		~TestMenu();
 
 		void OnImGuiRender() override;
 
 		struct always_false : std::false_type {};
 		template<typename T>
-		void RegisterTest(const std::string& name, VertexArray* va = nullptr, Shader* shader = nullptr, Renderer* renderer = nullptr, int nTranslations = 0)
+		void RegisterTest(const std::string& name, int nTranslations = 1)
 		{
 			m_Tests.push_back(std::make_pair(name, [=]()-> test::Test*
 			{
-			
-				if constexpr (std::is_constructible_v<T, VertexArray&, Shader&, Renderer&, int>)
+				if constexpr (std::is_constructible_v<T, int>)
 				{
-					return new T(*va, *shader, *renderer, nTranslations);
+					return new T(nTranslations);
 				}
 				else if constexpr (std::is_default_constructible_v<T>)
 				{
@@ -58,7 +57,7 @@ namespace test
 				}
 				else
 				{
-					std::cout << "Test must be constructible with (VertexArray*, Shader*, Renderer*, int) or be default-constructible." << std::endl;
+					std::cout << "Test must be constructible with (int) or be default-constructible." << std::endl;
 					return nullptr;
 				}
 
