@@ -1,14 +1,34 @@
 ﻿  Scanning sources for module dependencies...
+  glm.cppm
+  Compiling...
+  glm.cppm
+  Application.cpp
+  IndexBuffer.cpp
+  Renderer.cpp
+  Shader.cpp
+  Test.cpp
+  TestClearColor.cpp
+  TestSquare.cpp
   TestTexture2D.cpp
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\memory(3594,56): warning C4244: 'argument': conversion from '_Ty' to 'unsigned int', possible loss of data
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\memory(3594,56): warning C4244:         with
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\memory(3594,56): warning C4244:         [
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\memory(3594,56): warning C4244:             _Ty=unsigned __int64
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\memory(3594,56): warning C4244:         ]
-  (compiling source file 'src/tests/TestTexture2D.cpp')
-      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.43.34808\include\memory(3594,56):
-      the template instantiation context (the oldest one first) is
-          C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\tests\TestTexture2D.cpp(10,15):
-          see reference to function template instantiation 'std::unique_ptr<VertexBuffer,std::default_delete<VertexBuffer>> std::make_unique<VertexBuffer,float(&)[16],unsigned __int64,0>(float (&)[16],unsigned __int64 &&)' being compiled
-  
+  Texture.cpp
+  glm.cpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  stb_image.cpp
+  VertexArray.cpp
+C:\cppdev\OpenGLrenderer\OpenGLrenderer\src\VertexArray.cpp(25,96): warning C4312: 'type cast': conversion from 'unsigned int' to 'const void *' of greater size
+  VertexBuffer.cpp
+  Generating Code...
+glew32s.lib(glew.obj) : warning LNK4099: PDB '' was not found with 'glew32s.lib(glew.obj)' or at ''; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   OpenGLrenderer.vcxproj -> C:\cppdev\OpenGLrenderer\x64\Debug\OpenGLrenderer.exe
+  Adds res to build dir
+  C:\cppdev\OpenGLrenderer\OpenGLrenderer\res\shaders\Basic.shader
+  C:\cppdev\OpenGLrenderer\OpenGLrenderer\res\textures\testTexture.png
+  2 File(s) copied

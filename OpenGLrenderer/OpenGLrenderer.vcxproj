@@ -591,6 +591,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /E /I "$(ProjectDir)res" "$(OutDir)res"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Adds res to build dir</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -611,6 +617,12 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLEW\lib\Release\x64;$(SolutionDir)Dependencies\GLFW\lib-vc2022</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y /E /I "$(ProjectDir)res" "$(OutDir)res"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Adds res to build dir</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

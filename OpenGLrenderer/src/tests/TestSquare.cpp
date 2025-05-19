@@ -7,7 +7,7 @@ namespace test
 		m_ViewMat(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0)))
 	{
 		m_Va = std::make_unique<VertexArray>();
-		m_Vb = std::make_unique<VertexBuffer>(m_Positions, 4 * 4 * sizeof(float));
+		m_Vb = std::make_unique<VertexBuffer>(m_Positions, 4 * 2 * sizeof(float));
 		VertexBufferLayout layout;
 		layout.Push<float>(2);   //number of values per position
 		m_Va->AddBuffer(*m_Vb, layout);
